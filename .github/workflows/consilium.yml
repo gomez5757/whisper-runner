@@ -26,6 +26,7 @@ jobs:
           git clone -q --depth 1 https://github.com/ZFTurbo/asr_consilium "$RUNNER_TEMP/consil"
           pip install -q torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
           pip install -q -r "$RUNNER_TEMP/consil/requirements.txt"
+          pip install -q "mistral-common[hf-hub]"
       - name: descifrar
         env:
           KEY: ${{ secrets.TRANSCRIBE_KEY }}
