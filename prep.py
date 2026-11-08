@@ -12,7 +12,11 @@ data.mkdir(exist_ok=True)
 work.mkdir(parents=True, exist_ok=True)
 
 CHUNK, OVERLAP = 300, 20
-ENH = "highpass=f=80,lowpass=f=8000,afftdn=nf=-25,dynaudnorm=f=150:g=15:p=0.9:m=20,alimiter=limit=0.95"
+VARIANTS = {
+    "orig": None,
+    "enh": "highpass=f=80,lowpass=f=8000,afftdn=nf=-25,dynaudnorm=f=150:g=15:p=0.9:m=20,alimiter=limit=0.95",
+    "boost": "highpass=f=60,dynaudnorm=f=75:g=9:p=0.95:m=40,alimiter=limit=0.95",
+}
 
 
 def enc(src, dst):
@@ -26,7 +30,7 @@ enc(cfg, data / "cfg.bin")
 
 jobs, manifest = [], {}
 for i, v in enumerate(videos, 1):
-    for variant, af in (("orig", None), ("enh", ENH)):
+    for variant, af in VARIANTS.items():
         name = f"v{i}-{variant}"
         out = work / f"{name}.flac"
         cmd = ["ffmpeg", "-y", "-loglevel", "error", "-i", v, "-vn", "-ac", "1", "-ar", "16000"]
@@ -40,7 +44,7 @@ for i, v in enumerate(videos, 1):
     k = 0
     while k * CHUNK < dur:
         s, e = max(0, k * CHUNK - OVERLAP), min(dur, (k + 1) * CHUNK + OVERLAP)
-        for variant in ("orig", "enh"):
+        for variant in VARIANTS:
             jobs.append({"id": f"v{i}-{variant}-{k:02d}", "file": f"v{i}-{variant}", "start": round(s, 2), "end": round(e, 2)})
         k += 1
 

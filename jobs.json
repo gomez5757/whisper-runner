@@ -3,12 +3,36 @@
   "id": "v1-orig-00",
   "file": "v1-orig",
   "start": 0,
-  "end": 20.02
+  "end": 51.37
  },
  {
   "id": "v1-enh-00",
   "file": "v1-enh",
   "start": 0,
-  "end": 20.02
+  "end": 51.37
+ },
+ {
+  "id": "v1-boost-00",
+  "file": "v1-boost",
+  "start": 0,
+  "end": 51.37
+ },
+ {
+  "id": "v2-orig-00",
+  "file": "v2-orig",
+  "start": 0,
+  "end": 108.16
+ },
+ {
+  "id": "v2-enh-00",
+  "file": "v2-enh",
+  "start": 0,
+  "end": 108.16
+ },
+ {
+  "id": "v2-boost-00",
+  "file": "v2-boost",
+  "start": 0,
+  "end": 108.16
  }
 ]
