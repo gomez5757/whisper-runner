@@ -1,0 +1,6 @@
+*.flac
+*.wav
+*.mp4
+*.txt
+out/
+__pycache__/
