@@ -1,5 +1,9 @@
 name: consilium
-on: workflow_dispatch
+on:
+  workflow_dispatch:
+    inputs:
+      models:
+        default: '["nvidia/parakeet-tdt-0.6b-v3","Qwen/Qwen3-ASR-1.7B","ibm-granite/granite-4.0-1b-speech","ibm-granite/granite-speech-4.1-2b","ZFTurbo/Phi-4-multimodal-instruct","mistralai/Voxtral-Mini-3B-2507"]'
 permissions:
   contents: read
 
@@ -10,13 +14,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        model:
-          - nvidia/parakeet-tdt-0.6b-v3
-          - Qwen/Qwen3-ASR-1.7B
-          - ibm-granite/granite-4.0-1b-speech
-          - ibm-granite/granite-speech-4.1-2b
-          - ZFTurbo/Phi-4-multimodal-instruct
-          - mistralai/Voxtral-Mini-3B-2507
+        model: ${{ fromJson(inputs.models) }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -39,7 +37,7 @@ jobs:
           M: ${{ matrix.model }}
         run: |
           cd "$RUNNER_TEMP/consil"
-          python -c "import os;from asr_consilium import inference as f;p=os.environ['RUNNER_TEMP']+'/p/';f(jsonl_file=p+'markdown.jsonl',out_file=p+'res.jsonl',batch_size=1,model_list=[os.environ['M']],language='es')" > "$RUNNER_TEMP/log.txt" 2>&1 || { grep -E "Error|error" "$RUNNER_TEMP/log.txt" | grep -v -i "warn" | tail -6; exit 1; }
+          python -c "import os;from asr_consilium import inference as f;p=os.environ['RUNNER_TEMP']+'/p/';f(jsonl_file=p+'markdown.jsonl',out_file=p+'res.jsonl',batch_size=1,model_list=[os.environ['M']],language='es')" > "$RUNNER_TEMP/log.txt" 2>&1 || { grep -v -i -E "warn|it/s|s/it" "$RUNNER_TEMP/log.txt" | tail -15; exit 1; }
           ls "$RUNNER_TEMP/p" | grep res_
       - name: cifrar resultado
         env:
