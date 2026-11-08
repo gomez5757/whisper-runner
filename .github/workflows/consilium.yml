@@ -1,0 +1,57 @@
+name: consilium
+on: workflow_dispatch
+permissions:
+  contents: read
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    strategy:
+      fail-fast: false
+      matrix:
+        model:
+          - nvidia/parakeet-tdt-0.6b-v3
+          - Qwen/Qwen3-ASR-1.7B
+          - ibm-granite/granite-4.0-1b-speech
+          - ibm-granite/granite-speech-4.1-2b
+          - ZFTurbo/Phi-4-multimodal-instruct
+          - mistralai/Voxtral-Mini-3B-2507
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: instalar
+        run: |
+          sudo apt-get -qq install -y ffmpeg > /dev/null
+          git clone -q --depth 1 https://github.com/ZFTurbo/asr_consilium "$RUNNER_TEMP/consil"
+          pip install -q torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
+          pip install -q -r "$RUNNER_TEMP/consil/requirements.txt"
+      - name: descifrar
+        env:
+          KEY: ${{ secrets.TRANSCRIBE_KEY }}
+        run: |
+          mkdir -p "$RUNNER_TEMP/p"
+          openssl enc -d -aes-256-cbc -pbkdf2 -iter 200000 -pass env:KEY -in data/pieces.bin | tar -C "$RUNNER_TEMP/p" -xf -
+      - name: transcribir
+        env:
+          M: ${{ matrix.model }}
+        run: |
+          cd "$RUNNER_TEMP/consil"
+          python -c "import os;from asr_consilium import inference as f;p=os.environ['RUNNER_TEMP']+'/p/';f(jsonl_file=p+'markdown.jsonl',out_file=p+'res.jsonl',batch_size=1,model_list=[os.environ['M']],language='es')" > "$RUNNER_TEMP/log.txt" 2>&1 || { grep -E "Error|error" "$RUNNER_TEMP/log.txt" | grep -v -i "warn" | tail -6; exit 1; }
+          ls "$RUNNER_TEMP/p" | grep res_
+      - name: cifrar resultado
+        env:
+          KEY: ${{ secrets.TRANSCRIBE_KEY }}
+        run: |
+          mkdir -p out
+          N=$(basename "${{ matrix.model }}")
+          openssl enc -aes-256-cbc -pbkdf2 -iter 200000 -salt -pass env:KEY -in "$RUNNER_TEMP/p/res_$N.jsonl" -out "out/c-$N.bin"
+          rm -rf "$RUNNER_TEMP/p"
+          echo "N=$N" >> "$GITHUB_ENV"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: c-${{ env.N }}
+          path: out/c-${{ env.N }}.bin
+          retention-days: 3
