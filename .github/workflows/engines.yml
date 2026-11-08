@@ -1,0 +1,45 @@
+name: engines
+on: workflow_dispatch
+permissions:
+  contents: read
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      matrix:
+        engine: [canary, parakeet, cohere]
+        file: [v1-orig, v1-loud, v2-orig, v2-loud]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: instalar
+        run: |
+          pip install -q torch --index-url https://download.pytorch.org/whl/cpu
+          if [ "${{ matrix.engine }}" = cohere ]; then
+            pip install -q "transformers>=5.4.0" huggingface_hub soundfile librosa sentencepiece protobuf accelerate
+          else
+            pip install -q "nemo_toolkit[asr]" soundfile
+          fi
+      - name: descifrar
+        env:
+          KEY: ${{ secrets.TRANSCRIBE_KEY }}
+        run: openssl enc -d -aes-256-cbc -pbkdf2 -iter 200000 -pass env:KEY -in data/${{ matrix.file }}.bin -out "$RUNNER_TEMP/a.flac"
+      - name: transcribir
+        run: python engines.py ${{ matrix.engine }} "$RUNNER_TEMP/a.flac" "$RUNNER_TEMP/out.json" > /dev/null 2>"$RUNNER_TEMP/err.txt" || { grep -E "Error|error:" "$RUNNER_TEMP/err.txt" | tail -5; exit 1; }
+      - name: cifrar resultado
+        env:
+          KEY: ${{ secrets.TRANSCRIBE_KEY }}
+        run: |
+          mkdir -p out
+          openssl enc -aes-256-cbc -pbkdf2 -iter 200000 -salt -pass env:KEY -in "$RUNNER_TEMP/out.json" -out out/${{ matrix.file }}-${{ matrix.engine }}.bin
+          rm -f "$RUNNER_TEMP"/a.* "$RUNNER_TEMP/out.json"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.file }}-${{ matrix.engine }}
+          path: out/${{ matrix.file }}-${{ matrix.engine }}.bin
+          retention-days: 3
