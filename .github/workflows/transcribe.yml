@@ -31,7 +31,7 @@ jobs:
       - uses: actions/cache@v4
         with:
           path: ~/.cache/huggingface
-          key: whisper-large-v3
+          key: whisper-${{ matrix.model }}
       - name: descifrar
         env:
           KEY: ${{ secrets.TRANSCRIBE_KEY }}
@@ -39,7 +39,7 @@ jobs:
           openssl enc -d -aes-256-cbc -pbkdf2 -iter 200000 -pass env:KEY -in data/${{ matrix.file }}.bin -out "$RUNNER_TEMP/a.flac"
           openssl enc -d -aes-256-cbc -pbkdf2 -iter 200000 -pass env:KEY -in data/cfg.bin -out "$RUNNER_TEMP/cfg.json"
       - name: transcribir
-        run: python transcribe.py "$RUNNER_TEMP/a.flac" "$RUNNER_TEMP/cfg.json" ${{ matrix.start }} ${{ matrix.end }} "$RUNNER_TEMP/out.json"
+        run: python transcribe.py "$RUNNER_TEMP/a.flac" "$RUNNER_TEMP/cfg.json" ${{ matrix.start }} ${{ matrix.end }} "$RUNNER_TEMP/out.json" ${{ matrix.model }} ${{ matrix.cond }}
       - name: cifrar resultado
         env:
           KEY: ${{ secrets.TRANSCRIBE_KEY }}

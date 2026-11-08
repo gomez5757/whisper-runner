@@ -1,38 +1,130 @@
 [
  {
-  "id": "v1-orig-00",
+  "id": "v1-orig-00-v3c",
   "file": "v1-orig",
   "start": 0,
-  "end": 51.37
+  "end": 51.37,
+  "model": "large-v3",
+  "cond": "1"
  },
  {
-  "id": "v1-enh-00",
+  "id": "v1-orig-00-v2c",
+  "file": "v1-orig",
+  "start": 0,
+  "end": 51.37,
+  "model": "large-v2",
+  "cond": "1"
+ },
+ {
+  "id": "v1-enh-00-v3c",
   "file": "v1-enh",
   "start": 0,
-  "end": 51.37
+  "end": 51.37,
+  "model": "large-v3",
+  "cond": "1"
  },
  {
-  "id": "v1-boost-00",
+  "id": "v1-enh-00-v2c",
+  "file": "v1-enh",
+  "start": 0,
+  "end": 51.37,
+  "model": "large-v2",
+  "cond": "1"
+ },
+ {
+  "id": "v1-boost-00-v3c",
   "file": "v1-boost",
   "start": 0,
-  "end": 51.37
+  "end": 51.37,
+  "model": "large-v3",
+  "cond": "1"
  },
  {
-  "id": "v2-orig-00",
+  "id": "v1-boost-00-v2c",
+  "file": "v1-boost",
+  "start": 0,
+  "end": 51.37,
+  "model": "large-v2",
+  "cond": "1"
+ },
+ {
+  "id": "v1-loud-00-v3c",
+  "file": "v1-loud",
+  "start": 0,
+  "end": 51.37,
+  "model": "large-v3",
+  "cond": "1"
+ },
+ {
+  "id": "v1-loud-00-v2c",
+  "file": "v1-loud",
+  "start": 0,
+  "end": 51.37,
+  "model": "large-v2",
+  "cond": "1"
+ },
+ {
+  "id": "v2-orig-00-v3c",
   "file": "v2-orig",
   "start": 0,
-  "end": 108.16
+  "end": 108.16,
+  "model": "large-v3",
+  "cond": "1"
  },
  {
-  "id": "v2-enh-00",
+  "id": "v2-orig-00-v2c",
+  "file": "v2-orig",
+  "start": 0,
+  "end": 108.16,
+  "model": "large-v2",
+  "cond": "1"
+ },
+ {
+  "id": "v2-enh-00-v3c",
   "file": "v2-enh",
   "start": 0,
-  "end": 108.16
+  "end": 108.16,
+  "model": "large-v3",
+  "cond": "1"
  },
  {
-  "id": "v2-boost-00",
+  "id": "v2-enh-00-v2c",
+  "file": "v2-enh",
+  "start": 0,
+  "end": 108.16,
+  "model": "large-v2",
+  "cond": "1"
+ },
+ {
+  "id": "v2-boost-00-v3c",
   "file": "v2-boost",
   "start": 0,
-  "end": 108.16
+  "end": 108.16,
+  "model": "large-v3",
+  "cond": "1"
+ },
+ {
+  "id": "v2-boost-00-v2c",
+  "file": "v2-boost",
+  "start": 0,
+  "end": 108.16,
+  "model": "large-v2",
+  "cond": "1"
+ },
+ {
+  "id": "v2-loud-00-v3c",
+  "file": "v2-loud",
+  "start": 0,
+  "end": 108.16,
+  "model": "large-v3",
+  "cond": "1"
+ },
+ {
+  "id": "v2-loud-00-v2c",
+  "file": "v2-loud",
+  "start": 0,
+  "end": 108.16,
+  "model": "large-v2",
+  "cond": "1"
  }
 ]

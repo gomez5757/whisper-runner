@@ -20,8 +20,8 @@ for b in sorted(arts.rglob("*.bin")):
     j = work / f"{name}.json"
     subprocess.run(["openssl", "enc", "-d", "-aes-256-cbc", "-pbkdf2", "-iter", "200000",
                     "-pass", f"file:{key}", "-in", str(b), "-out", str(j)], check=True)
-    vid, variant, k = name.split("-")
-    groups.setdefault(f"{vid}-{variant}", []).append((int(k), json.loads(j.read_text(encoding="utf-8"))))
+    vid, variant, k, *tag = name.split("-")
+    groups.setdefault("-".join([vid, variant, *tag]), []).append((int(k), json.loads(j.read_text(encoding="utf-8"))))
 
 for g, parts in sorted(groups.items()):
     segs = []

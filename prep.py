@@ -16,7 +16,9 @@ VARIANTS = {
     "orig": None,
     "enh": "highpass=f=80,lowpass=f=8000,afftdn=nf=-25,dynaudnorm=f=150:g=15:p=0.9:m=20,alimiter=limit=0.95",
     "boost": "highpass=f=60,dynaudnorm=f=75:g=9:p=0.95:m=40,alimiter=limit=0.95",
+    "loud": "highpass=f=100,lowpass=f=7000,volume=18dB,alimiter=limit=0.9",
 }
+MODELS = [("large-v3", "1", "v3c"), ("large-v2", "1", "v2c")]
 
 
 def enc(src, dst):
@@ -45,7 +47,9 @@ for i, v in enumerate(videos, 1):
     while k * CHUNK < dur:
         s, e = max(0, k * CHUNK - OVERLAP), min(dur, (k + 1) * CHUNK + OVERLAP)
         for variant in VARIANTS:
-            jobs.append({"id": f"v{i}-{variant}-{k:02d}", "file": f"v{i}-{variant}", "start": round(s, 2), "end": round(e, 2)})
+            for model, cond, tag in MODELS:
+                jobs.append({"id": f"v{i}-{variant}-{k:02d}-{tag}", "file": f"v{i}-{variant}", "start": round(s, 2),
+                             "end": round(e, 2), "model": model, "cond": cond})
         k += 1
 
 (repo / "jobs.json").write_text(json.dumps(jobs, indent=1), encoding="utf-8")

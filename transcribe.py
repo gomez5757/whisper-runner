@@ -7,12 +7,14 @@ from faster_whisper import WhisperModel, decode_audio
 # No imprime nada del contenido: el log del repo es publico.
 src, cfg_path, start, end, out = sys.argv[1], sys.argv[2], float(sys.argv[3]), float(sys.argv[4]), sys.argv[5]
 cfg = json.load(open(cfg_path, encoding="utf-8"))
+model_name = sys.argv[6] if len(sys.argv) > 6 else cfg.get("model", "large-v3")
+cond = len(sys.argv) > 7 and sys.argv[7] == "1"
 
 sr = 16000
 audio = decode_audio(src, sampling_rate=sr)
 a = audio[int(start * sr): int(end * sr) if end > 0 else None]
 
-model = WhisperModel(cfg.get("model", "large-v3"), device="cpu", compute_type="int8", cpu_threads=4)
+model = WhisperModel(model_name, device="cpu", compute_type="int8", cpu_threads=4)
 segs, info = model.transcribe(
     a,
     language=cfg.get("language") or None,
@@ -21,7 +23,7 @@ segs, info = model.transcribe(
     best_of=5,
     temperature=[0.0, 0.2, 0.4, 0.6, 0.8, 1.0],
     vad_filter=False,
-    condition_on_previous_text=False,
+    condition_on_previous_text=cond,
     word_timestamps=True,
     hallucination_silence_threshold=2.0,
 )
