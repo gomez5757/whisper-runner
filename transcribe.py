@@ -1,3 +1,4 @@
+import os
 import json
 import sys
 
@@ -14,7 +15,7 @@ sr = 16000
 audio = decode_audio(src, sampling_rate=sr)
 a = audio[int(start * sr): int(end * sr) if end > 0 else None]
 
-model = WhisperModel(model_name, device="cpu", compute_type="int8", cpu_threads=4)
+model = WhisperModel(model_name, device="cpu", compute_type=os.environ.get("CT", "int8"), cpu_threads=4)
 segs, info = model.transcribe(
     a,
     language=cfg.get("language") or None,

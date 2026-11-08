@@ -39,6 +39,8 @@ jobs:
           openssl enc -d -aes-256-cbc -pbkdf2 -iter 200000 -pass env:KEY -in data/${{ matrix.file }}.bin -out "$RUNNER_TEMP/a.flac"
           openssl enc -d -aes-256-cbc -pbkdf2 -iter 200000 -pass env:KEY -in data/cfg.bin -out "$RUNNER_TEMP/cfg.json"
       - name: transcribir
+        env:
+          CT: ${{ matrix.ct || 'int8' }}
         run: python transcribe.py "$RUNNER_TEMP/a.flac" "$RUNNER_TEMP/cfg.json" ${{ matrix.start }} ${{ matrix.end }} "$RUNNER_TEMP/out.json" ${{ matrix.model }} ${{ matrix.cond }}
       - name: cifrar resultado
         env:
