@@ -32,12 +32,16 @@ jobs:
         run: |
           mkdir -p "$RUNNER_TEMP/p"
           openssl enc -d -aes-256-cbc -pbkdf2 -iter 200000 -pass env:KEY -in data/pieces.bin | tar -C "$RUNNER_TEMP/p" -xf -
+      - name: memoria extra
+        run: |
+          sudo fallocate -l 16G /mnt/swap2 && sudo chmod 600 /mnt/swap2 && sudo mkswap -q /mnt/swap2 && sudo swapon /mnt/swap2
+          free -g | head -3
       - name: transcribir
         env:
           M: ${{ matrix.model }}
         run: |
           cd "$RUNNER_TEMP/consil"
-          python -c "import os;from asr_consilium import inference as f;p=os.environ['RUNNER_TEMP']+'/p/';f(jsonl_file=p+'markdown.jsonl',out_file=p+'res.jsonl',batch_size=1,model_list=[os.environ['M']],language='es')" > "$RUNNER_TEMP/log.txt" 2>&1 || { grep -v -i -E "warn|it/s|s/it" "$RUNNER_TEMP/log.txt" | tail -15; exit 1; }
+          python -c "import os;from asr_consilium import inference as f;p=os.environ['RUNNER_TEMP']+'/p/';f(jsonl_file=p+'markdown.jsonl',out_file=p+'res.jsonl',batch_size=1,model_list=[os.environ['M']],language='es')" > "$RUNNER_TEMP/log.txt" 2>&1 || { echo "salida $?"; grep -v -i -E "warn|it/s|s/it" "$RUNNER_TEMP/log.txt" | tail -15; exit 1; }
           ls "$RUNNER_TEMP/p" | grep res_
       - name: cifrar resultado
         env:
