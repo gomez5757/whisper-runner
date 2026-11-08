@@ -1,0 +1,49 @@
+name: score
+on: workflow_dispatch
+permissions:
+  contents: read
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        model: [openai/whisper-large-v3, openai/whisper-large-v2]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: instalar
+        run: |
+          sudo apt-get -qq install -y ffmpeg > /dev/null
+          pip install -q torch --index-url https://download.pytorch.org/whl/cpu
+          pip install -q transformers numpy
+      - name: descifrar
+        env:
+          KEY: ${{ secrets.TRANSCRIBE_KEY }}
+        run: |
+          for f in cands v1-orig v1-loud v2-orig v2-loud; do
+            openssl enc -d -aes-256-cbc -pbkdf2 -iter 200000 -pass env:KEY -in data/$f.bin -out "$RUNNER_TEMP/$f"
+          done
+          cp "$RUNNER_TEMP/cands" "$RUNNER_TEMP/cands.json"
+      - name: puntuar
+        run: |
+          cd "$RUNNER_TEMP"
+          python "$GITHUB_WORKSPACE/score.py" cands.json out.json ${{ matrix.model }} > log.txt 2>&1 || { tail -15 log.txt | grep -v -i warn; exit 1; }
+          tail -1 log.txt
+      - name: cifrar resultado
+        env:
+          KEY: ${{ secrets.TRANSCRIBE_KEY }}
+        run: |
+          mkdir -p out
+          N=$(basename ${{ matrix.model }})
+          openssl enc -aes-256-cbc -pbkdf2 -iter 200000 -salt -pass env:KEY -in "$RUNNER_TEMP/out.json" -out out/s-$N.bin
+          echo "N=$N" >> "$GITHUB_ENV"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: s-${{ env.N }}
+          path: out/s-${{ env.N }}.bin
+          retention-days: 3
