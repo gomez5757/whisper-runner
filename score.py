@@ -11,7 +11,7 @@ from transformers import WhisperForConditionalGeneration, WhisperProcessor
 # No imprime contenido: el log es publico.
 cfg, out, name = json.load(open(sys.argv[1], encoding="utf-8")), sys.argv[2], sys.argv[3]
 proc = WhisperProcessor.from_pretrained(name)
-model = WhisperForConditionalGeneration.from_pretrained(name).eval()
+model = WhisperForConditionalGeneration.from_pretrained(name, torch_dtype=torch.float32).eval()
 tok = proc.tokenizer
 prefix = tok.convert_tokens_to_ids(["<|startoftranscript|>", "<|es|>", "<|transcribe|>", "<|notimestamps|>"])
 res = []
